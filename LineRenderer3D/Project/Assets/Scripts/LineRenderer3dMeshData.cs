@@ -20,6 +20,10 @@ public class LineRenderer3dMeshData
         this.radiusCurve = radiusCurve;
         this.centerPoints = centerPoints;
         this.pointPerCircle = smooth;
+        if (centerPoints.Length < 2)
+        {
+            throw new System.Exception("Cannot Calculate LineRender3D with " + centerPoints.Length + " point.");
+        }
         CalcData();
     }
 
