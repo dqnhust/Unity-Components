@@ -85,6 +85,7 @@ public partial class LineRenderer3D : MonoBehaviour
     {
         var data = new LineRenderer3dMeshData(radius, radiusCurve, smooth, points);
         mesh.Clear();
+        if (points.Length < 2) return;
         mesh.vertices = data.Vertices;
         mesh.triangles = data.Triangles;
         mesh.uv = data.Uv;
