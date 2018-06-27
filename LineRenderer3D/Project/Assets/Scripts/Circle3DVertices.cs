@@ -28,7 +28,8 @@ public class Circle3DVertices
     private void CalcData()
     {
         _vertices = new Vector3[pointCount];
-        var v0 = center + Vector3.Cross(normal, normal + new Vector3(1, 1, 1)).normalized * radius;
+        var vectorX = new Vector3(normal.x + 1, normal.y + 1, normal.z).normalized;
+        var v0 = center + Vector3.Cross(normal, vectorX).normalized * radius;
         for (int i = 0; i < pointCount; i++)
         {
             var angle = ((float)i / (pointCount - 1f)) * 360;

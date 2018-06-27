@@ -62,9 +62,17 @@ public class LineRenderer3dMeshData
     {
         List<Vector3[]> circleVert = new List<Vector3[]>();
         var centerPointLength = centerPoints.Length;
-        for (int i = 1; i < centerPointLength; i++)
+        for (int i = 0; i < centerPointLength; i++)
         {
-            var vectorN = centerPoints[i - 1] - centerPoints[i];
+            Vector3 vectorN;
+            if (i == 0)
+            {
+                vectorN = centerPoints[0] - centerPoints[1];
+            }
+            else
+            {
+                vectorN = centerPoints[i - 1] - centerPoints[i];
+            }
             var p = ((float)i) / (centerPointLength - 1);
             var r = radiusCurve.Evaluate(p) * this.radius;
             var center = centerPoints[i];
