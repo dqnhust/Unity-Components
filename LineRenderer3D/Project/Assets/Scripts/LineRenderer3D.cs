@@ -99,4 +99,13 @@ public partial class LineRenderer3D : MonoBehaviour
     {
         UpdateView();
     }
+
+    [ContextMenu("test")]
+    void test() {
+        var x = new Circle3DVertices(new Vector3(3, 0, 1), new Vector3(0.2f, -1, 0), 0, 10);
+        foreach (var item in x.Vertices)
+        {
+            Debug.Log("===" + item);
+        }
+    }
 }

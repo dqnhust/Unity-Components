@@ -33,7 +33,7 @@ public class Circle3DVertices
         for (int i = 0; i < pointCount; i++)
         {
             var angle = ((float)i / (pointCount - 1f)) * 360;
-            _vertices[i] = Quaternion.AngleAxis(angle, normal) * v0;
+            _vertices[i] = Quaternion.AngleAxis(angle, normal) * (v0 - center) + center;
         }
     }
 }
