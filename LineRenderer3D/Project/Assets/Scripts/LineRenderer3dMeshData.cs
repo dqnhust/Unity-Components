@@ -6,7 +6,7 @@ public class LineRenderer3dMeshData
     private float radius;
     private AnimationCurve radiusCurve;
     private Vector3[] centerPoints;
-
+    private Gradient gradientColor;
     /// <summary>
     /// Initializes a new instance of the <see cref="T:LineRenderer3dMeshData"/> class.
     /// </summary>
@@ -14,10 +14,11 @@ public class LineRenderer3dMeshData
     /// <param name="radiusCurve">Radius curve.</param>
     /// <param name="smooth">Smooth > 4</param>.</param>
     /// <param name="centerPoints">Center points.</param>
-    public LineRenderer3dMeshData(float radius, AnimationCurve radiusCurve, int smooth, params Vector3[] centerPoints)
+    public LineRenderer3dMeshData(float radius, AnimationCurve radiusCurve, Gradient gradientColor, int smooth, params Vector3[] centerPoints)
     {
         this.radius = radius;
         this.radiusCurve = radiusCurve;
+        this.gradientColor = gradientColor;
         this.centerPoints = centerPoints;
         this.pointPerCircle = smooth;
         if (centerPoints.Length < 2)
@@ -51,15 +52,26 @@ public class LineRenderer3dMeshData
         }
     }
 
+    public Color[] Colors
+    {
+        get
+        {
+            return _colors;
+        }
+    }
+
     private Vector2[] _uv;
     private Vector3[] _vertices;
     private int[] _triangles;
+    private Color[] _colors;
+
     private readonly int pointPerCircle = 10;
     void CalcData()
     {
         CalcVertices();
         CalcTriangles();
         CalcUv();
+        CalcColors();
     }
 
     void CalcVertices()
@@ -118,12 +130,41 @@ public class LineRenderer3dMeshData
 
     void CalcUv()
     {
-        var vertLength = _vertices.Length;
-        _uv = new Vector2[vertLength];
-        for (int i = 0; i < vertLength; i++)
+        List<Vector2> vs = new List<Vector2>();
+        var centerPointLength = centerPoints.Length;
+        for (int i = 0; i < centerPointLength - 1; i++)
         {
-            var v = _vertices[i];
-            _uv[i] = new Vector2(v.x + v.z, v.y + v.z);
+            float p0 = ((float)i) / (centerPointLength - 1);
+            float p1 = ((float)(i + 1f)) / (centerPointLength - 1);
+            for (int j = 0; j < pointPerCircle - 1; j++)
+            {
+                float px = ((float)j) / (pointPerCircle - 1);
+                float px1 = ((float)(j + 1)) / (pointPerCircle - 1);
+                vs.Add(new Vector2(px, p0));
+                vs.Add(new Vector2(px1, p0));
+                vs.Add(new Vector2(px1, p1));
+                vs.Add(new Vector2(px, p1));
+            }
         }
+        _uv = vs.ToArray();
+    }
+
+    void CalcColors()
+    {
+        List<Color> cs = new List<Color>();
+        var centerPointLength = centerPoints.Length;
+        for (int i = 0; i < centerPointLength - 1; i++)
+        {
+            float p0 = ((float)i) / (centerPointLength - 1);
+            float p1 = ((float)(i + 1f)) / (centerPointLength - 1);
+            for (int j = 0; j < pointPerCircle - 1; j++)
+            {
+                cs.Add(gradientColor.Evaluate(p0));
+                cs.Add(gradientColor.Evaluate(p0));
+                cs.Add(gradientColor.Evaluate(p1));
+                cs.Add(gradientColor.Evaluate(p1));
+            }
+        }
+        _colors = cs.ToArray();
     }
 }

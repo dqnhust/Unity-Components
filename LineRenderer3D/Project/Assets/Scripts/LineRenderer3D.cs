@@ -12,6 +12,7 @@ public partial class LineRenderer3D : MonoBehaviour
     [Range(4, 300)]
     [SerializeField] private int smooth;
     [SerializeField] private AnimationCurve radiusCurve;
+    [SerializeField] private Gradient colorGradient;
     [SerializeField] private Vector3[] points;
 
     public void SetRadius(float radius)
@@ -85,10 +86,11 @@ public partial class LineRenderer3D : MonoBehaviour
     {
         mesh.Clear();
         if (points.Length < 2) return;
-        var data = new LineRenderer3dMeshData(radius, radiusCurve, smooth, points);
+        var data = new LineRenderer3dMeshData(radius, radiusCurve, colorGradient, smooth, points);
         mesh.vertices = data.Vertices;
         mesh.triangles = data.Triangles;
         mesh.uv = data.Uv;
+        mesh.colors = data.Colors;
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
@@ -98,14 +100,5 @@ public partial class LineRenderer3D : MonoBehaviour
     private void OnValidate()
     {
         UpdateView();
-    }
-
-    [ContextMenu("test")]
-    void test() {
-        var x = new Circle3DVertices(new Vector3(3, 0, 1), new Vector3(0.2f, -1, 0), 0, 10);
-        foreach (var item in x.Vertices)
-        {
-            Debug.Log("===" + item);
-        }
     }
 }
