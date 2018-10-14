@@ -18,11 +18,17 @@ public abstract class Pooler<T> : MonoBehaviour where T : ObjPooler
         }
         else
         {
-            var g = Instantiate(template.gameObject, template.transform.parent) as GameObject;
-            instance = g.GetComponent<T>();
-            instance.SetEvents(() => { OnObjActive(instance); }, () => { OnObjInActive(instance); });
+            instance = CreateInstance();
         }
         listWorking.Add(instance);
+        return instance;
+    }
+
+    private T CreateInstance()
+    {
+        var g = Instantiate(template.gameObject, gameObject.transform) as GameObject;
+        var instance = g.GetComponent<T>();
+        instance.SetEvents(() => { OnObjActive(instance); }, () => { OnObjInActive(instance); });
         return instance;
     }
 
@@ -40,9 +46,7 @@ public abstract class Pooler<T> : MonoBehaviour where T : ObjPooler
     {
         for (int i = 0; i < instanceCount; i++)
         {
-            var g = Instantiate(template.gameObject, template.transform.parent) as GameObject;
-            T instance = g.GetComponent<T>();
-            instance.SetEvents(() => { OnObjActive(instance); }, () => { OnObjInActive(instance); });
+            T instance = CreateInstance();
             listInactive.Add(instance);
         }
     }
