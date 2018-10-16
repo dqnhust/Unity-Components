@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Animator), typeof(CanvasGroup))]
 public abstract class Popup:MonoBehaviour
 {
     [SerializeField] private Animator anim;
