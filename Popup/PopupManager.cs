@@ -1,0 +1,48 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PopupManager : MonoBehaviour
+{
+    [SerializeField] private Popup defaultPopup;
+
+    private List<Popup> listPopup = new List<Popup>();
+
+    public T GetPopup<T>() where T:Popup
+    {
+        if (!init)
+        {
+            Init();
+        }
+
+        foreach (var popup in listPopup)
+        {
+            if (popup is T)
+            {
+                return (T)popup;
+            }
+        }
+        throw new UnityException("Cannot Find Popup" + (typeof(T).Name));
+    }
+
+    bool init = false;
+
+    public void Init()
+    {
+        if (init)
+            return;
+        init = true;
+        var childCount = transform.childCount;
+        for (int i = 0; i < childCount; i++)
+        {
+            Popup p = transform.GetChild(i).GetComponent<Popup>();
+            if (p != null)
+            {
+                listPopup.Add(p);
+                p.Init();
+            }
+        }
+        if (defaultPopup != null)
+            defaultPopup.Open();
+    }
+}
