@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MobileLandTemplate
+namespace VnzITComponent
 {
     public class ApplovinComponent : IAds
     {

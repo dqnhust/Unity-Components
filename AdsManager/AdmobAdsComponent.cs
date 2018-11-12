@@ -1,7 +1,7 @@
 ﻿using System;
 using GoogleMobileAds.Api;
 
-namespace MobileLandTemplate
+namespace VnzITComponent
 {
     public class AdmobAdsComponent : IAds, IBanner
     {

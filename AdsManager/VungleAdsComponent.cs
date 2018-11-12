@@ -1,6 +1,5 @@
 ﻿using System;
-
-namespace MobileLandTemplate
+namespace VnzITComponent
 {
     public class VungleAdsComponent : IAds
     {

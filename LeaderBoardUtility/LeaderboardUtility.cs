@@ -3,8 +3,7 @@
 using GooglePlayGames.BasicApi;
 using GooglePlayGames;
 #endif
-
-namespace MobileLandTemplate
+namespace VnzITComponent
 {
     public static class LeaderboardUtility
     {

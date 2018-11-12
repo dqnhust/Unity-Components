@@ -1,4 +1,4 @@
-﻿namespace MobileLandTemplate
+﻿namespace VnzITComponent
 {
     public interface IBanner
     {

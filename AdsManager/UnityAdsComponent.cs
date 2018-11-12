@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine.Advertisements;
 
-namespace MobileLandTemplate
+namespace VnzITComponent
 {
     public class UnityAdsComponent : IAds
     {

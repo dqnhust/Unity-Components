@@ -1,7 +1,7 @@
 ﻿using System;
 using ChartboostSDK;
 
-namespace MobileLandTemplate
+namespace VnzITComponent
 {
     public class ChartboostAdsComponent : IAds
     {
