@@ -1,3 +1,4 @@
+Important: In psd file, should not have group. Should rename layer before export.
 Photoshop:
 Step 1: Export All Layer To A folder
 Step 2: Run Scrip In Photoshop(How to run? Search Google)
