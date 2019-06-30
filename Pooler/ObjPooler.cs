@@ -1,36 +1,31 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-public abstract class ObjPooler : MonoBehaviour
+public class ObjPooler : MonoBehaviour, ObjPooler.IObjPooler
 {
-    private System.Action callBackActive;
-    private System.Action callBackInActive;
-
-    /// <summary>
-    /// Call By Pooler System
-    /// </summary>
-    /// <param name="callBackActive">Call back when active.</param>
-    /// <param name="callBackInActive">Call back when inactive.</param>
-    public void SetEvents(System.Action callBackActive, System.Action callBackInActive)
-    {
-        this.callBackActive = callBackActive;
-        this.callBackInActive = callBackInActive;
-    }
+    private Action<ObjPooler> onAcitve;
+    private Action<ObjPooler> onInactive;
 
     public virtual void Inactive()
     {
-        if (callBackInActive != null)
-        {
-            callBackInActive.Invoke();
-        }
         gameObject.SetActive(false);
+        onInactive?.Invoke(this);
     }
 
     public virtual void Active()
     {
-        if (callBackActive != null)
-        {
-            callBackActive.Invoke();
-        }
         gameObject.SetActive(true);
+        onAcitve?.Invoke(this);
+    }
+
+    void IObjPooler.SetEvent(Action<ObjPooler> onActive, Action<ObjPooler> onInactive)
+    {
+        this.onAcitve = onActive;
+        this.onInactive = onInactive;
+    }
+
+    public interface IObjPooler
+    {
+        void SetEvent(Action<ObjPooler> onActive, Action<ObjPooler> onInActive);
     }
 }

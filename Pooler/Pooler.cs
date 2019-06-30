@@ -1,93 +1,106 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Pooler<T> : MonoBehaviour where T : ObjPooler
+public class Pooler : MonoBehaviour
 {
-    [SerializeField] protected T template;
-    protected List<T> listActive = new List<T>();
-    protected List<T> listInactive = new List<T>();
-    protected List<T> listWorking = new List<T>();
+    private Dictionary<int, PoolerStore> dict = new Dictionary<int, Pooler.PoolerStore>();
 
-    public T GetObj()
+    public T GetObj<T>(T template) where T : ObjPooler
     {
-        T instance;
-        if (listInactive.Count > 0)
+        if (template == null)
+            return null;
+        int id = template.GetInstanceID();
+        var poolerStore = GetPooler(id);
+        return (T)poolerStore.GetObj(template);
+    }
+
+    public T GetObj<T>(T template, Transform parent) where T : ObjPooler
+    {
+        if (template == null)
+            return null;
+        int id = template.GetInstanceID();
+        var poolerStore = GetPooler(id);
+        return (T)poolerStore.GetObj(template, parent);
+    }
+
+    public void InActiveAll()
+    {
+        foreach (var item in dict)
         {
-            instance = (T)listInactive[0];
-            listInactive.RemoveAt(0);
-        }
-        else
-        {
-            instance = CreateInstance();
-        }
-        listWorking.Add(instance);
-        return instance;
-    }
-
-    private T CreateInstance()
-    {
-        var g = Instantiate(template.gameObject, gameObject.transform) as GameObject;
-        var instance = g.GetComponent<T>();
-        instance.SetEvents(() => { OnObjActive(instance); }, () => { OnObjInActive(instance); });
-        return instance;
-    }
-
-    public List<T> GetListActive()
-    {
-        return listActive;
-    }
-
-    public List<T> GetListInactive()
-    {
-        return listInactive;
-    }
-
-    public void Cache(int instanceCount)
-    {
-        for (int i = 0; i < instanceCount; i++)
-        {
-            T instance = CreateInstance();
-            listInactive.Add(instance);
+            item.Value.InactiveAll();
         }
     }
 
-    public void InactiveAll()
+    private PoolerStore GetPooler(int id)
     {
-        foreach (var item in listActive.ToArray())
+        PoolerStore pooler;
+        if (!dict.TryGetValue(id, out pooler))
         {
-            item.Inactive();
+            pooler = new PoolerStore();
+            dict.Add(id, pooler);
         }
-        foreach (var item in listWorking.ToArray())
-        {
-            item.Inactive();
-        }
+        return pooler;
     }
 
-    public void ActiveAll()
+    private class PoolerStore
     {
-        foreach (var item in listInactive.ToArray())
-        {
-            item.Active();
-        }
-        foreach (var item in listWorking.ToArray())
-        {
-            item.Active();
-        }
-    }
+        private HashSet<ObjPooler> listInactive = new HashSet<ObjPooler>();
+        private HashSet<ObjPooler> listWorking = new HashSet<ObjPooler>();
+        private HashSet<ObjPooler> listActive = new HashSet<ObjPooler>();
 
-    #region Active For ObjPooler
-    private void OnObjInActive(T instance)
-    {
-        listInactive.Add(instance);
-        listActive.Remove(instance);
-        listWorking.Remove(instance);
-    }
+        public ObjPooler GetObj(ObjPooler template, Transform parent)
+        {
+            var obj = GetObj(template);
+            obj.transform.SetParent(parent);
+            return obj;
+        }
 
-    private void OnObjActive(T instance)
-    {
-        listActive.Add(instance);
-        listInactive.Remove(instance);
-        listWorking.Remove(instance);
+        public ObjPooler GetObj(ObjPooler template)
+        {
+            if (template == null)
+            {
+                return null;
+            }
+            ObjPooler item = null;
+            foreach (var inactiveItem in listInactive)
+            {
+                item = inactiveItem;
+            }
+            if (item != null)
+            {
+                listInactive.Remove(item);
+                listWorking.Add(item);
+                return item;
+            }
+            else
+            {
+                item = Instantiate(template);
+                ((ObjPooler.IObjPooler)item).SetEvent(OnObjActive, OnObjInactive);
+                listWorking.Add(item);
+                return item;
+            }
+        }
+
+        public void InactiveAll()
+        {
+            foreach (var item in listWorking)
+            {
+                item.Inactive();
+            }
+        }
+
+        private void OnObjInactive(ObjPooler obj)
+        {
+            listWorking.Remove(obj);
+            listActive.Remove(obj);
+            listInactive.Add(obj);
+        }
+
+        private void OnObjActive(ObjPooler obj)
+        {
+            listWorking.Remove(obj);
+            listInactive.Remove(obj);
+            listActive.Add(obj);
+        }
     }
-    #endregion
 }
