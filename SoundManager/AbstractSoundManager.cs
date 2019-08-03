@@ -93,6 +93,7 @@ public abstract class AbstractSoundManager : MonoBehaviour
             source.playOnAwake = false;
             source.clip = clip;
             source.Play();
+            loopDict.Add(clip, source);
         }
         return source;
     }
