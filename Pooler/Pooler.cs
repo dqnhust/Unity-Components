@@ -91,16 +91,18 @@ public class Pooler : MonoBehaviour
 
         private void OnObjInactive(ObjPooler obj)
         {
-            listWorking.Remove(obj);
-            listActive.Remove(obj);
-            listInactive.Add(obj);
+            bool removed = listWorking.Remove(obj);
+            removed = removed || listActive.Remove(obj);
+            if (removed)
+                listInactive.Add(obj);
         }
 
         private void OnObjActive(ObjPooler obj)
         {
-            listWorking.Remove(obj);
-            listInactive.Remove(obj);
-            listActive.Add(obj);
+            bool removed = listWorking.Remove(obj);
+            removed = removed || listInactive.Remove(obj);
+            if (removed)
+                listActive.Add(obj);
         }
     }
 }
