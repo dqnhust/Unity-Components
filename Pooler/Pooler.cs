@@ -31,6 +31,12 @@ public class Pooler : MonoBehaviour
         }
     }
 
+    public PoolerStore GetPooler<T>(T template) where T : ObjPooler
+    {
+        var id = template.GetInstanceID();
+        return GetPooler(id);
+    }
+
     private PoolerStore GetPooler(int id)
     {
         PoolerStore pooler;
@@ -42,7 +48,7 @@ public class Pooler : MonoBehaviour
         return pooler;
     }
 
-    private class PoolerStore
+    public class PoolerStore
     {
         private HashSet<ObjPooler> listInactive = new HashSet<ObjPooler>();
         private HashSet<ObjPooler> listWorking = new HashSet<ObjPooler>();
@@ -83,7 +89,13 @@ public class Pooler : MonoBehaviour
 
         public void InactiveAll()
         {
-            foreach (var item in listWorking)
+            var lw = new HashSet<ObjPooler>(listWorking);
+            var la = new HashSet<ObjPooler>(listActive);
+            foreach (var item in lw)
+            {
+                item.Inactive();
+            }
+            foreach (var item in la)
             {
                 item.Inactive();
             }
