@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class FogFake : MonoBehaviour
 {
     [SerializeField] private Vector2 quadSize;
@@ -72,5 +72,19 @@ public class FogFake : MonoBehaviour
         mesh.SetTriangles(triangles, 0);
         mesh.SetNormals(normals);
         mesh.RecalculateBounds();
+
+        var mat = GetComponent<MeshRenderer>().sharedMaterial;
+        var distanceFromCam = DistanceFromCamera;
+        mat.SetFloat("_MinDistanceFog", distanceFromCam);
+        mat.SetFloat("_MaxDistanceFog", distanceFromCam + length);
+    }
+
+    private float DistanceFromCamera
+    {
+        get
+        {
+            var cam = Camera.allCameras[0];
+            return Vector3.Distance(cam.transform.position, transform.position);
+        }
     }
 }
