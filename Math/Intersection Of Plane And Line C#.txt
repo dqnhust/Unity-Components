@@ -1,0 +1,4 @@
+private Vector3 IntersectionOfLineAndPlane(Vector3 linePoint, Vector3 lineDireciton, Vector3 planePoint, Vector3 planeNormal)
+    {
+        return linePoint - lineDireciton * Vector3.Dot(linePoint - planePoint, planeNormal) / Vector3.Dot(lineDireciton, planeNormal);
+    }
