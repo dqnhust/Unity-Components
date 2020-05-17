@@ -1,4 +1,4 @@
-Shader "Screw/BasicSkyFactor"{
+Shader "Custom/BasicSkyFactor"{
     Properties {
         _Color ("Color Tint", Color) = (1.0,1.0,1.0,1.0)
         _AmbientColor ("Ambient Color", Color) = (1,1,1,1.0)
