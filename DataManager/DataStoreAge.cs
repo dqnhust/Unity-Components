@@ -84,6 +84,7 @@ public static class DataStoreAge
         }
         else
         {
+            SetData(key, defaultValue);
             return defaultValue;
         }
     }
