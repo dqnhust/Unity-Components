@@ -23,7 +23,7 @@ Shader "Custom/Basic"{
             #include "UnityCG.cginc"
             #include "UnityLightingCommon.cginc"
             #include "AutoLight.cginc"
-                        
+            
             uniform sampler2D _MainTex;
             uniform half4 _MainTex_ST;
             uniform half4 _Color;
@@ -33,7 +33,7 @@ Shader "Custom/Basic"{
             uniform half _ShadowStrength;
             uniform half _AmbientStrength;            
 
-			struct vertexInput{
+            struct vertexInput{
                 half4 vertex : POSITION;
                 half3 normal : NORMAL;
                 half4 texcoord : TEXCOORD0;
@@ -47,7 +47,7 @@ Shader "Custom/Basic"{
                 SHADOW_COORDS(2)
                 half4 diffuse : COLOR;
             };
-                        
+            
             vertexOutput vert(vertexInput v)
             {
                 UNITY_SETUP_INSTANCE_ID(v);
@@ -58,7 +58,7 @@ Shader "Custom/Basic"{
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.tex = v.texcoord;
 
-				half3 lightDirection = normalize(_WorldSpaceLightPos0.xyz);
+                half3 lightDirection = normalize(_WorldSpaceLightPos0.xyz);
                 half nl = saturate(dot(normalDir, lightDirection));
                 o.diffuse = _LightColor0 * nl * _DiffuseStrength;
 
@@ -71,17 +71,17 @@ Shader "Custom/Basic"{
             {			
 
                 half3 ambient = _AmbientColor.rgb * _AmbientStrength;
-				half shadow = SHADOW_ATTENUATION(i);
+                half shadow = SHADOW_ATTENUATION(i);
 
-				half4 tex = tex2D(_MainTex, i.tex.xy * _MainTex_ST.xy + _MainTex_ST.zw);
+                half4 tex = tex2D(_MainTex, i.tex.xy * _MainTex_ST.xy + _MainTex_ST.zw);
 
-				shadow = lerp(shadow, 1, 1 - _ShadowStrength);
+                shadow = lerp(shadow, 1, 1 - _ShadowStrength);
                 half3 shadowedDiffuse = lerp(_ShadowColor, i.diffuse.rgb, shadow);
                 half3 light = shadowedDiffuse + ambient;
 
                 half4 color;
                 color.rgb = tex.rgb * _Color * light;
-				color.rgb = lerp(color.rgb, shadowedDiffuse, 1 - shadow);
+                color.rgb = lerp(color.rgb, shadowedDiffuse, 1 - shadow);
                 color.a = tex.a;
 
                 return color;
@@ -90,9 +90,34 @@ Shader "Custom/Basic"{
             ENDCG
             
         }
-
-        UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
-
+        Pass 
+        {
+            Name "CastShadow"
+            Tags { "LightMode" = "ShadowCaster" }
+            
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_shadowcaster
+            #include "UnityCG.cginc"
+            
+            struct v2f 
+            { 
+                V2F_SHADOW_CASTER;
+            };
+            
+            v2f vert( appdata_base v )
+            {
+                v2f o;
+                TRANSFER_SHADOW_CASTER(o)
+                return o;
+            }
+            
+            float4 frag( v2f i ) : COLOR
+            {
+                SHADOW_CASTER_FRAGMENT(i)
+            }
+            ENDCG
+        }
     }
-    //Fallback "Specular"
 }
