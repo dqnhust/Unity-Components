@@ -16,9 +16,9 @@ public static class DataStoreAge
         }
     }
 
-    public static void SaveData()
+    public static void SaveData(bool forceSave = false)
     {
-        if (!dataChanged)
+        if (!dataChanged && !forceSave)
         {
             Debug.Log("Nothing Data Change! Not Save!");
             return;
@@ -64,7 +64,8 @@ public static class DataStoreAge
     {
         if (currentData == null)
         {
-            throw new System.Exception("Need Load Data Before SetData");
+            LoadData();
+            //throw new System.Exception("Need Load Data Before SetData");
         }
         currentData.dict[key] = data;
         dataChanged = true;
@@ -74,7 +75,8 @@ public static class DataStoreAge
     {
         if (currentData == null)
         {
-            throw new System.Exception("Need Load Data Before GetData");
+            LoadData();
+            //throw new System.Exception("Need Load Data Before GetData");
         }
         object obj = null;
         bool got = currentData.dict.TryGetValue(key, out obj);
