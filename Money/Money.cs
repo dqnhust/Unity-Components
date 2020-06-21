@@ -21,7 +21,32 @@ public struct Money
 
     public override string ToString()
     {
-        return "";
+        if (value == 0) return "0";
+        int mag = (int)(System.Math.Floor(System.Math.Log10(value)) / 3);
+        double divisor = System.Math.Pow(10, mag * 3);
+
+        double shortNumber = value / divisor;
+
+        string suffix = "";
+        switch (mag)
+        {
+            case 0:
+                suffix = string.Empty;
+                break;
+            case 1:
+                suffix = "K";
+                break;
+            case 2:
+                suffix = "M";
+                break;
+            case 3:
+                suffix = "B";
+                break;
+            default:
+                suffix = "XXXX";
+                break;
+        }
+        return shortNumber.ToString("N1") + suffix;
     }
 
     public override bool Equals(object obj)
