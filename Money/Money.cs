@@ -1,4 +1,5 @@
 ﻿#pragma warning disable 0649
+using System;
 using UnityEngine;
 
 [System.Serializable]
@@ -19,34 +20,31 @@ public struct Money
         return m.value;
     }
 
-    public override string ToString()
+    public override string ToString() => ToString("0.#");
+    public string ToString(string format = "0.#")
     {
         if (value == 0) return "0";
-        int mag = (int)(System.Math.Floor(System.Math.Log10(value)) / 3);
-        double divisor = System.Math.Pow(10, mag * 3);
+        double exponent = Math.Log10(value);
+        if (exponent < 3)
+        {
+            return value.ToString(format);
+        }
+        string[] abbreviation = new string[] { "K", "M", "B", "t", "q", "Q", "s", "S", "o", "n", "d", "U", "D", "T", "Qt", "Qd", "Sd", "St", "O", "N", "v", "c" };
+
+        int mag = (int)(Math.Floor(exponent / 3));
+        double divisor = Math.Pow(10, mag * 3);
 
         double shortNumber = value / divisor;
 
-        string suffix = "";
-        switch (mag)
+        if (mag >= abbreviation.Length)
         {
-            case 0:
-                suffix = string.Empty;
-                break;
-            case 1:
-                suffix = "K";
-                break;
-            case 2:
-                suffix = "M";
-                break;
-            case 3:
-                suffix = "B";
-                break;
-            default:
-                suffix = "XXXX";
-                break;
+            return "VeryBigNumber!";
         }
-        return shortNumber.ToString("N1") + suffix;
+        else
+        {
+            string suffix = abbreviation[mag - 1];
+            return shortNumber.ToString(format) + suffix;
+        }
     }
 
     public override bool Equals(object obj)
