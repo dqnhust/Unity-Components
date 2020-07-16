@@ -34,6 +34,11 @@ public class TextFormatView : MonoBehaviour
             UnityEditor.Undo.RecordObject(this, "Get Text Component");
             textView = GetComponent<Text>();
         }
+
+        if (textView)
+        {
+            textView.text = format;
+        }
     }
 #endif
 }
