@@ -10,10 +10,7 @@ public abstract class AbstractEventNumberView<T> : MonoBehaviour
         get;
     }
 
-    protected abstract string StringValue
-    {
-        get;
-    }
+    protected virtual string StringValue => Data.Value.ToString();
 
     protected virtual void OnEnable()
     {
