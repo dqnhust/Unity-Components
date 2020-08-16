@@ -11,6 +11,9 @@ Shader "Custom/BasicFog"{
         _ShadowStrength ("Shadow Factor", Range(0, 1)) = 1	
     }
     SubShader {
+        Tags {
+            "Queue" = "Transparent"
+        }
         Pass {
             Tags {
                 "LightMode" = "ForwardBase"
@@ -41,11 +44,13 @@ Shader "Custom/BasicFog"{
             uniform float _MinFogDistance;
             uniform float _MaxFogDistance;
             uniform float4 _FogColor;
+            uniform int _ApplyFog;
             
             struct vertexInput{
                 half4 vertex : POSITION;
                 half3 normal : NORMAL;
                 half4 texcoord : TEXCOORD0;
+                half4 color : COLOR;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -55,6 +60,7 @@ Shader "Custom/BasicFog"{
                 half3 worldPos : TEXCOORD1;                    
                 SHADOW_COORDS(2)
                 half4 diffuse : COLOR;
+                half4 color : COLOR1;
             };
             
             vertexOutput vert(vertexInput v)
@@ -72,17 +78,22 @@ Shader "Custom/BasicFog"{
                 o.diffuse = _LightColor0 * nl * _DiffuseStrength;
 
                 TRANSFER_SHADOW(o);
+                o.color = v.color;
 
                 return o;
             }
             
             float GetFogPercent(float3 worldPos) {
-                float distanceToCamera = length(_WorldSpaceCameraPos - worldPos);
-                if (distanceToCamera < _MinFogDistance)
+                if (_ApplyFog) {
+
+                    float distanceToCamera = length(_WorldSpaceCameraPos - worldPos);
+                    if (distanceToCamera < _MinFogDistance)
                     return 0;
-                else if (distanceToCamera > _MaxFogDistance) 
+                    else if (distanceToCamera > _MaxFogDistance) 
                     return 1;
-                return (distanceToCamera - _MinFogDistance)/(_MaxFogDistance - _MinFogDistance);
+                    return (distanceToCamera - _MinFogDistance)/(_MaxFogDistance - _MinFogDistance);
+                }
+                return 0;
             }
 
             half4 frag(vertexOutput i) : COLOR
@@ -98,9 +109,11 @@ Shader "Custom/BasicFog"{
                 half3 light = shadowedDiffuse + ambient;
 
                 half4 color;
-                color.rgb = tex.rgb * _Color * light;
+                color = tex;
+                color.rgb *= i.color.rgb;
+                color.rgb = tex.rgb * _Color.rgb * light;
                 color.rgb = lerp(color.rgb, shadowedDiffuse, 1 - shadow);
-                color.a = tex.a;
+                color.a = tex.a * i.color.a;
                 float fogPercent  = GetFogPercent(i.worldPos);
                 color.rgb = lerp(color.rgb, _FogColor, fogPercent);
                 // color.a *= (1 - fogPercent);
