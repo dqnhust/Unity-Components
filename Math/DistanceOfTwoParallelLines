@@ -1,0 +1,7 @@
+private float DistanceOfTwoParallelLines(Vector3 a, Vector3 b, Vector3 direction)
+{
+    Vector3 v = direction;
+    Vector3 w = a - b;
+    Vector3 result = Vector3.Cross(v, w);
+    return result.magnitude;
+}
