@@ -1,10 +1,11 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using UnityEditor;
+using UnityEngine;
 
-public static class DataStoreAge
+public static class DataStorage
 {
     private static Data currentData;
 
@@ -91,7 +92,7 @@ public static class DataStoreAge
         }
     }
 
-    [System.Serializable]
+    [Serializable]
     private class Data
     {
         public Dictionary<string, object> dict;
@@ -103,7 +104,7 @@ public static class DataStoreAge
     }
 
 #if UNITY_EDITOR
-    [UnityEditor.MenuItem("DataStoreAge/DeleteAll")]
+    [MenuItem("DataStoreAge/DeleteAll")]
 #endif
     public static void DeleteAll()
     {

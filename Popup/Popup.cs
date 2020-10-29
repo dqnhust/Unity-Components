@@ -4,6 +4,7 @@ public abstract class Popup : MonoBehaviour
 {
     public virtual void Open()
     {
+        transform.SetAsLastSibling();
         gameObject.SetActive(true);
         OnOpen();
     }
