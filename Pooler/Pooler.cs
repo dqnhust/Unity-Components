@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class Pooler : MonoBehaviour
+public class Pooler
 {
     private Dictionary<int, PoolerStore> dict = new Dictionary<int, Pooler.PoolerStore>();
 
@@ -80,7 +80,7 @@ public class Pooler : MonoBehaviour
             }
             else
             {
-                item = Instantiate(template);
+                item = Object.Instantiate(template);
                 ((ObjPooler.IObjPooler)item).SetEvent(OnObjActive, OnObjInactive);
                 listWorking.Add(item);
                 return item;
