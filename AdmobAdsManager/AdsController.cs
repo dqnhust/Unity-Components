@@ -1,5 +1,4 @@
 ﻿#pragma warning disable 0649
-using System;
 using System.Collections;
 using GameEvent;
 using GameMode;
@@ -11,8 +10,9 @@ namespace Ads
     public class AdsController : MonoBehaviour
     {
         [SerializeField] private AdsManager adsManager;
-        [SerializeField] private EventSavedBoolObject boughIAP;
+        [SerializeField] private EventSavedBoolObject boughIap;
         [SerializeField] private GameManagerEvent gameManagerEvent;
+        // [SerializeField] private CurrentGameModeStore currentGameModeStore;
         [SerializeField] private InAppReviewController inAppReviewController;
 
         private int CallShowInterstitialCount
@@ -31,37 +31,74 @@ namespace Ads
 
         private void OnEnable()
         {
-            boughIAP.OnValueChanged += OnBoughIAPValueChanged;
+            boughIap.OnValueChanged += OnBoughIAPValueChanged;
             gameManagerEvent.EventShowGameOverUI += OnGameOver;
+            // gameManagerEvent.EventGameGenerated += OnGameGenerated;
             // gameManagerEvent.EventGamePaused += OnGamePause;
-            if (!boughIAP.GetValue())
+            if (!boughIap.GetValue())
             {
-                adsManager.ShowBanner();
+                ShowBanner();
             }
             else
             {
-                adsManager.HideBanner();
+                HideBanner();
             }
 
             gameManagerEvent.EventShowReward += OnHaveCallShowReward;
+            // TryShowInterstitial();
         }
 
         private void OnDisable()
         {
             gameManagerEvent.EventShowGameOverUI -= OnGameOver;
             // gameManagerEvent.EventGamePaused -= OnGamePause;
-            boughIAP.OnValueChanged -= OnBoughIAPValueChanged;
+            // gameManagerEvent.EventGameGenerated -= OnGameGenerated;
+            boughIap.OnValueChanged -= OnBoughIAPValueChanged;
             gameManagerEvent.EventShowReward -= OnHaveCallShowReward;
         }
 
+        // private void TryShowInterstitial()
+        // {
+        //     
+        //     var gameMode = obj.GetComponent<IGameMode>();
+        //     if (gameMode is IScoreGameMode scoreGameMode)
+        //     {
+        //         if (scoreGameMode.ScoreStore.BestScore > 500)
+        //         {
+        //             StartCoroutine(IeShowDelay(2f));
+        //         }
+        //     }
+        // }
+
+        // private bool needShowFirst = true;
+        //
+        // private void OnGameGenerated(GameObject obj)
+        // {
+        //     if (!needShowFirst)
+        //     {
+        //         return;
+        //     }
+        //
+        //     needShowFirst = false;
+        //     var gameMode = obj.GetComponent<IGameMode>();
+        //     if (gameMode is IScoreGameMode scoreGameMode)
+        //     {
+        //         if (scoreGameMode.ScoreStore.BestScore > 500)
+        //         {
+        //             StartCoroutine(IeShowDelay(2f));
+        //         }
+        //     }
+        // }
+
         private void OnHaveCallShowReward()
         {
-            adsManager.ShowRewarded(gameManagerEvent.OnEventGotRewarded, gameManagerEvent.OnEventCloseReward);
+            adsManager.ShowRewarded(gameManagerEvent.OnEventRewardOpen, gameManagerEvent.OnEventGotRewarded,
+                gameManagerEvent.OnEventCloseReward);
         }
 
         private void OnBoughIAPValueChanged()
         {
-            if (boughIAP.GetValue())
+            if (boughIap.GetValue())
             {
                 adsManager.HideBanner();
             }
@@ -79,7 +116,7 @@ namespace Ads
         private void OnGameOver(IGameMode obj)
         {
             CallShowInterstitialCount++;
-            if (boughIAP.GetValue())
+            if (boughIap.GetValue())
             {
                 return;
             }
@@ -101,25 +138,50 @@ namespace Ads
                 yield break;
             }
 
-            adsManager.ShowInterstitial();
+            ShowInterstitial();
         }
 
-        private float lastTimePause;
+        private float _lastTimePause;
 
         private void OnApplicationPause(bool pauseStatus)
         {
             if (pauseStatus)
             {
-                lastTimePause = Time.realtimeSinceStartup;
+                _lastTimePause = Time.realtimeSinceStartup;
             }
             else
             {
-                var deltaTime = Time.realtimeSinceStartup - lastTimePause;
+                var deltaTime = Time.realtimeSinceStartup - _lastTimePause;
                 if (deltaTime > 20)
                 {
-                    adsManager.ShowInterstitial();
+                    ShowInterstitial();
                 }
             }
+        }
+
+        private void ShowInterstitial()
+        {
+            if (boughIap.GetValue())
+            {
+                return;
+            }
+
+            adsManager.ShowInterstitial();
+        }
+
+        private void ShowBanner()
+        {
+            if (boughIap.GetValue())
+            {
+                return;
+            }
+
+            adsManager.ShowBanner();
+        }
+
+        private void HideBanner()
+        {
+            adsManager.HideBanner();
         }
     }
 }

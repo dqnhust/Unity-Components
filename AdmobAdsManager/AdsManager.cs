@@ -54,11 +54,12 @@ namespace Ads
         }
 
         // ReSharper disable once UnusedMember.Global
-        public void ShowRewarded(Action callBackDone, Action callBackClose)
+        public void ShowRewarded(Action callBackOpenReward, Action callBackDone, Action callBackClose)
         {
-            _gotRewarded = false;
+            Debug.LogError("Call Show Reward");
             _actionDoneReward = callBackDone;
             _actionCloseReward = callBackClose;
+            _actionRewardOpen = callBackOpenReward;
             if (_rewardedAd != null && _rewardedAd.IsLoaded())
             {
                 _rewardedAd.Show();
@@ -108,7 +109,6 @@ namespace Ads
         #region Rewarded Setup
 
         private RewardedAd _rewardedAd;
-        private bool _gotRewarded;
 
         private void RequestAndLoadRewardedAd()
         {
@@ -130,11 +130,22 @@ namespace Ads
                 // _gotRewarded = true;
                 Debug.LogError("Got Reward!");
             };
+
+            _rewardedAd.OnAdFailedToLoad += (sender, args) =>
+            {
+                InvokeOnMainThread(() => InvokeDelay(5f, RequestAndLoadRewardedAd));
+            };
+
+            _rewardedAd.OnAdOpening += delegate(object sender, EventArgs args)
+            {
+                InvokeOnMainThread(_actionRewardOpen);
+            };
             _rewardedAd.LoadAd(GetRequest());
         }
 
         private Action _actionDoneReward;
         private Action _actionCloseReward;
+        private Action _actionRewardOpen;
 
         #endregion
 
