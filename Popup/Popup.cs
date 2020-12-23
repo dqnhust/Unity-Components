@@ -1,32 +1,32 @@
 using UnityEngine;
 
-public abstract class Popup : MonoBehaviour
+namespace Popup
 {
-    public virtual void Open()
+    public abstract class Popup : MonoBehaviour
     {
-        transform.SetAsLastSibling();
-        gameObject.SetActive(true);
-        OnOpen();
-    }
+        public virtual void Open()
+        {
+            transform.SetAsLastSibling();
+            gameObject.SetActive(true);
+            OnOpen();
+        }
 
-    public virtual void Close()
-    {
-        OnClose();
-        gameObject.SetActive(false);
-    }
+        public virtual void Close()
+        {
+            OnClose();
+            gameObject.SetActive(false);
+        }
 
-    protected virtual void OnOpen()
-    {
+        protected virtual void OnOpen()
+        {
+        }
 
-    }
+        protected virtual void OnClose()
+        {
+        }
 
-    protected virtual void OnClose()
-    {
-
-    }
-
-    public virtual void Init()
-    {
-
+        public virtual void Init()
+        {
+        }
     }
 }

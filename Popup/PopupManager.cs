@@ -1,48 +1,54 @@
-﻿using System.Collections;
+﻿#pragma warning disable 0649
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PopupManager : MonoBehaviour
+namespace Popup
 {
-    [SerializeField] private Popup defaultPopup;
-
-    private List<Popup> listPopup = new List<Popup>();
-
-    public T GetPopup<T>() where T:Popup
+    public class PopupManager : MonoBehaviour
     {
-        if (!init)
-        {
-            Init();
-        }
+        [SerializeField] private Popup defaultPopup;
 
-        foreach (var popup in listPopup)
+        private List<Popup> listPopup = new List<Popup>();
+
+        public T GetPopup<T>() where T : Popup
         {
-            if (popup is T)
+            if (!init)
             {
-                return (T)popup;
+                Init();
             }
-        }
-        throw new UnityException("Cannot Find Popup" + (typeof(T).Name));
-    }
 
-    bool init = false;
-
-    public void Init()
-    {
-        if (init)
-            return;
-        init = true;
-        var childCount = transform.childCount;
-        for (int i = 0; i < childCount; i++)
-        {
-            Popup p = transform.GetChild(i).GetComponent<Popup>();
-            if (p != null)
+            foreach (var popup in listPopup)
             {
-                listPopup.Add(p);
-                p.Init();
+                if (popup is T)
+                {
+                    return (T) popup;
+                }
             }
+
+            throw new UnityException("Cannot Find Popup" + (typeof(T).Name));
         }
-        if (defaultPopup != null)
-            defaultPopup.Open();
+
+        bool init = false;
+
+        public void Init()
+        {
+            if (init)
+                return;
+            init = true;
+            var childCount = transform.childCount;
+            for (int i = 0; i < childCount; i++)
+            {
+                Popup p = transform.GetChild(i).GetComponent<Popup>();
+                if (p != null)
+                {
+                    listPopup.Add(p);
+                    p.Init();
+                    p.Close();
+                }
+            }
+
+            if (defaultPopup != null)
+                defaultPopup.Open();
+        }
     }
 }
