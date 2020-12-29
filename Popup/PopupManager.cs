@@ -1,4 +1,5 @@
 ﻿#pragma warning disable 0649
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -43,12 +44,21 @@ namespace Popup
                 {
                     listPopup.Add(p);
                     p.Init();
-                    p.Close();
                 }
+            }
+
+            foreach (var popup in listPopup)
+            {
+                popup.Close();
             }
 
             if (defaultPopup != null)
                 defaultPopup.Open();
+        }
+
+        private void Awake()
+        {
+            Init();
         }
     }
 }
