@@ -11,9 +11,10 @@ namespace Ads
     {
         [SerializeField] private AdsManager adsManager;
         [SerializeField] private EventSavedBoolObject boughIap;
+
         [SerializeField] private GameManagerEvent gameManagerEvent;
         // [SerializeField] private CurrentGameModeStore currentGameModeStore;
-        [SerializeField] private InAppReviewController inAppReviewController;
+        // [SerializeField] private RateAndReviewController rateAndReviewController;
 
         private int CallShowInterstitialCount
         {
@@ -92,8 +93,10 @@ namespace Ads
 
         private void OnHaveCallShowReward()
         {
+            // gameManagerEvent.OnEventFailedToShowReward();
+            // return;
             adsManager.ShowRewarded(gameManagerEvent.OnEventRewardOpen, gameManagerEvent.OnEventGotRewarded,
-                gameManagerEvent.OnEventCloseReward);
+                gameManagerEvent.OnEventFailedToShowReward, gameManagerEvent.OnEventCloseReward);
         }
 
         private void OnBoughIAPValueChanged()
@@ -115,13 +118,12 @@ namespace Ads
 
         private void OnGameOver(IGameMode obj)
         {
-            CallShowInterstitialCount++;
             if (boughIap.GetValue())
             {
                 return;
             }
 
-            StartCoroutine(IeShowDelay(1f));
+            StartCoroutine(IeShowDelay(0.5f));
             // adsManager.ShowInterstitial();
         }
 
@@ -133,10 +135,10 @@ namespace Ads
                 yield return new WaitForSeconds(delay);
             }
 
-            if (inAppReviewController.Showing)
-            {
-                yield break;
-            }
+            // if (rateAndReviewController.Showing)
+            // {
+            //     yield break;
+            // }
 
             ShowInterstitial();
         }
@@ -161,6 +163,7 @@ namespace Ads
 
         private void ShowInterstitial()
         {
+            CallShowInterstitialCount++;
             if (boughIap.GetValue())
             {
                 return;

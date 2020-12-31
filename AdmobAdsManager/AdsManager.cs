@@ -1,8 +1,8 @@
 ﻿#pragma warning disable 0649
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using GoogleMobileAds.Api;
+using GoogleMobileAds.Common;
 using UnityEngine;
 
 namespace Ads
@@ -15,21 +15,28 @@ namespace Ads
 
         public void Init(bool enableBanner, bool enableInterstitial, bool enableRewarded)
         {
-            MobileAds.Initialize(initStatus => { Debug.Log("Admob Mobile Ads initialized, Status: " + initStatus); });
-            if (enableBanner)
+            MobileAds.Initialize(initStatus =>
             {
-                RequestBanner();
-            }
+                
+                Debug.Log("Admob Mobile Ads initialized, Status: " + initStatus);
+                InvokeOnMainThread(() =>
+                {
+                    if (enableBanner)
+                    {
+                        RequestBanner();
+                    }
 
-            if (enableInterstitial)
-            {
-                RequestAndLoadInterstitialAd();
-            }
+                    if (enableInterstitial)
+                    {
+                        RequestAndLoadInterstitialAd();
+                    }
 
-            if (enableRewarded)
-            {
-                RequestAndLoadRewardedAd();
-            }
+                    if (enableRewarded)
+                    {
+                        RequestAndLoadRewardedAd();
+                    }
+                });
+            });
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -54,15 +61,22 @@ namespace Ads
         }
 
         // ReSharper disable once UnusedMember.Global
-        public void ShowRewarded(Action callBackOpenReward, Action callBackDone, Action callBackClose)
+        public void ShowRewarded(Action callBackOpenReward, Action callBackDone, Action callBackFailed,
+            Action callBackClose)
         {
             Debug.LogError("Call Show Reward");
+            _actionFailedReward = callBackFailed;
             _actionDoneReward = callBackDone;
             _actionCloseReward = callBackClose;
             _actionRewardOpen = callBackOpenReward;
             if (_rewardedAd != null && _rewardedAd.IsLoaded())
             {
                 _rewardedAd.Show();
+            }
+            else
+            {
+                Debug.LogError("RewardVideo not ready!");
+                callBackFailed?.Invoke();
             }
         }
 
@@ -97,9 +111,7 @@ namespace Ads
             _interstitialAd.OnAdClosed += (sender, args) => RequestAndLoadInterstitialAd();
             _interstitialAd.OnAdFailedToLoad += (sender, args) =>
             {
-                InvokeOnMainThread(() =>
-                    InvokeDelay(15f, RequestAndLoadInterstitialAd)
-                );
+                InvokeOnMainThread(() => InvokeDelay(15f, RequestAndLoadInterstitialAd));
             };
             _interstitialAd.LoadAd(GetRequest());
         }
@@ -120,7 +132,7 @@ namespace Ads
                 InvokeOnMainThread(() => InvokeDelay(0.1f, () =>
                 {
                     Debug.LogError("Ad Closed!");
-                    InvokeOnMainThread(_actionCloseReward);
+                    _actionCloseReward?.Invoke();
                     RequestAndLoadRewardedAd();
                 }));
             };
@@ -133,40 +145,34 @@ namespace Ads
 
             _rewardedAd.OnAdFailedToLoad += (sender, args) =>
             {
+                Debug.LogError("Failed To Load!");
                 InvokeOnMainThread(() => InvokeDelay(5f, RequestAndLoadRewardedAd));
             };
 
-            _rewardedAd.OnAdOpening += delegate(object sender, EventArgs args)
+            _rewardedAd.OnAdFailedToShow += (sender, args) =>
             {
+                Debug.LogError("Failed To Show!");
+                InvokeOnMainThread(_actionFailedReward);
+            };
+
+            _rewardedAd.OnAdOpening += delegate
+            {
+                Debug.LogError("Ad Opening!");
                 InvokeOnMainThread(_actionRewardOpen);
             };
             _rewardedAd.LoadAd(GetRequest());
         }
 
         private Action _actionDoneReward;
+        private Action _actionFailedReward;
         private Action _actionCloseReward;
         private Action _actionRewardOpen;
 
         #endregion
 
-        private readonly List<Action> _listMethodWillBeInvokeOnMainThread = new List<Action>();
-
         private void InvokeOnMainThread(Action method)
         {
-            _listMethodWillBeInvokeOnMainThread.Add(method);
-        }
-
-        private void Update()
-        {
-            if (_listMethodWillBeInvokeOnMainThread.Count > 0)
-            {
-                foreach (var method in _listMethodWillBeInvokeOnMainThread)
-                {
-                    method?.Invoke();
-                }
-
-                _listMethodWillBeInvokeOnMainThread.Clear();
-            }
+            MobileAdsEventExecutor.ExecuteInUpdate(method);
         }
 
         private void InvokeDelay(float delay, Action method)
