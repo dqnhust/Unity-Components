@@ -1,8 +1,15 @@
 ﻿#pragma warning disable 0649
+using System;
 using UnityEngine;
+using Object = UnityEngine.Object;
+
+public abstract class AbstractInterfaceObject
+{
+    public abstract Type TargetType { get; }
+}
 
 [System.Serializable]
-public class InterfaceObject<T>
+public class InterfaceObject<T> : AbstractInterfaceObject
 {
     [SerializeField] private Object objTarget;
 
@@ -10,6 +17,12 @@ public class InterfaceObject<T>
     {
         get
         {
+            if (objTarget == null)
+            {
+                Debug.LogError($"{typeof(T).Name} cannot be null!");
+                return default;
+            }
+
             if (objTarget is T o)
             {
                 return o;
@@ -23,8 +36,9 @@ public class InterfaceObject<T>
                     return c;
                 }
             }
+
             Debug.LogError($"Can't cast {objTarget.GetType()} to {typeof(T)}", objTarget);
-            return default(T);
+            return default;
         }
     }
 
@@ -33,4 +47,5 @@ public class InterfaceObject<T>
     // {
     //     return obj.Value;
     // }
+    public override Type TargetType => typeof(T);
 }
