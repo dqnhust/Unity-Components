@@ -16,20 +16,39 @@ public class InterfaceObjectEditor : PropertyDrawer
         {
             var parentObj = property.serializedObject.targetObject;
             var parentType = parentObj.GetType();
-            var field = parentType.GetField(property.propertyPath,
+            var propertyPath = property.propertyPath;
+            bool isArray = propertyPath.Contains(".");
+            if (isArray)
+            {
+                var i = propertyPath.IndexOf(".", StringComparison.Ordinal);
+                propertyPath = propertyPath.Substring(0, i);
+            }
+
+            var field = parentType.GetField(propertyPath,
                 BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             if (field == null)
             {
                 return null;
             }
 
-            var fieldGenericTypes = field.FieldType.GenericTypeArguments;
-            if (fieldGenericTypes.Length == 0)
+            if (isArray)
             {
-                return null;
+                var arr = field.GetValue(parentObj) as Array;
+                var first = arr.GetValue(0);
+                var type = first.GetType();
+                return type.GenericTypeArguments[0];
             }
+            else
+            {
+                var fieldGenericTypes = field.FieldType.GenericTypeArguments;
+                if (fieldGenericTypes.Length == 0)
+                {
+                    Debug.LogError("Cannot find any generic type");
+                    return null;
+                }
 
-            return fieldGenericTypes[0];
+                return fieldGenericTypes[0];
+            }
         }
 
         var targetType = GetTargetType();
