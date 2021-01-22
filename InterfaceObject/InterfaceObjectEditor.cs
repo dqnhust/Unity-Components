@@ -80,6 +80,9 @@ public class InterfaceObjectEditor : PropertyDrawer
                 {
                     var comp = g.GetComponent(targetType);
                     targetObject.objectReferenceValue = comp != null ? comp : oldValue;
+                } else if (targetType.IsInstanceOfType(v))
+                {
+                    //Ok Done
                 }
                 else
                 {
