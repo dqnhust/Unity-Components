@@ -3,10 +3,9 @@ using UnityEngine;
 
 namespace PoolerPack
 {
-    // ReSharper disable once ClassNeverInstantiated.Global
     public class Pooler : IPooler
     {
-        private readonly Dictionary<int, PoolerStore> _dict = new Dictionary<int, PoolerStore>();
+        private Dictionary<int, PoolerStore> dict = new Dictionary<int, Pooler.PoolerStore>();
 
         public T GetObj<T>(T template) where T : ObjPooler
         {
@@ -28,7 +27,7 @@ namespace PoolerPack
 
         public void InActiveAll()
         {
-            foreach (var item in _dict)
+            foreach (var item in dict)
             {
                 item.Value.InactiveAll();
             }
@@ -42,23 +41,22 @@ namespace PoolerPack
 
         private PoolerStore GetPooler(int id)
         {
-            if (!_dict.TryGetValue(id, out var pooler))
+            PoolerStore pooler;
+            if (!dict.TryGetValue(id, out pooler))
             {
                 pooler = new PoolerStore();
-                _dict.Add(id, pooler);
+                dict.Add(id, pooler);
             }
             return pooler;
         }
 
         public class PoolerStore
         {
-            private readonly HashSet<ObjPooler> _listInactive = new HashSet<ObjPooler>();
-            private readonly HashSet<ObjPooler> _listWorking = new HashSet<ObjPooler>();
-            private readonly HashSet<ObjPooler> _listActive = new HashSet<ObjPooler>();
+            private HashSet<ObjPooler> listInactive = new HashSet<ObjPooler>();
+            private HashSet<ObjPooler> listWorking = new HashSet<ObjPooler>();
+            private HashSet<ObjPooler> listActive = new HashSet<ObjPooler>();
 
-            // ReSharper disable once ConvertToAutoPropertyWhenPossible
-            // ReSharper disable once UnusedMember.Global
-            public HashSet<ObjPooler> ListActive => _listActive;
+            public HashSet<ObjPooler> ListActive => listActive;
 
             public ObjPooler GetObj(ObjPooler template, Transform parent)
             {
@@ -74,29 +72,29 @@ namespace PoolerPack
                     return null;
                 }
                 ObjPooler item = null;
-                foreach (var inactiveItem in _listInactive)
+                foreach (var inactiveItem in listInactive)
                 {
                     item = inactiveItem;
                 }
                 if (item != null)
                 {
-                    _listInactive.Remove(item);
-                    _listWorking.Add(item);
+                    listInactive.Remove(item);
+                    listWorking.Add(item);
                     return item;
                 }
                 else
                 {
                     item = Object.Instantiate(template);
                     ((ObjPooler.IObjPooler)item).SetEvent(OnObjActive, OnObjInactive);
-                    _listWorking.Add(item);
+                    listWorking.Add(item);
                     return item;
                 }
             }
 
             public void InactiveAll()
             {
-                var lw = new HashSet<ObjPooler>(_listWorking);
-                var la = new HashSet<ObjPooler>(_listActive);
+                var lw = new HashSet<ObjPooler>(listWorking);
+                var la = new HashSet<ObjPooler>(listActive);
                 foreach (var item in lw)
                 {
                     item.Inactive();
@@ -109,18 +107,18 @@ namespace PoolerPack
 
             private void OnObjInactive(ObjPooler obj)
             {
-                bool removed = _listWorking.Remove(obj);
-                removed = removed || _listActive.Remove(obj);
+                bool removed = listWorking.Remove(obj);
+                removed = removed || listActive.Remove(obj);
                 if (removed)
-                    _listInactive.Add(obj);
+                    listInactive.Add(obj);
             }
 
             private void OnObjActive(ObjPooler obj)
             {
-                bool removed = _listWorking.Remove(obj);
-                removed = removed || _listInactive.Remove(obj);
+                bool removed = listWorking.Remove(obj);
+                removed = removed || listInactive.Remove(obj);
                 if (removed)
-                    _listActive.Add(obj);
+                    listActive.Add(obj);
             }
         }
     }
