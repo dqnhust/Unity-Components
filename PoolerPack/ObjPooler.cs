@@ -1,34 +1,53 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace PoolerPack
 {
-    public class ObjPooler : MonoBehaviour, ObjPooler.IObjPooler
+    // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
+    public class ObjPooler : MonoBehaviour, IObjPooler
     {
-        private Action<ObjPooler> onAcitve;
-        private Action<ObjPooler> onInactive;
 
         public virtual void Inactive()
         {
             gameObject.SetActive(false);
-            onInactive?.Invoke(this);
+            PoolerStatus = ObjPoolerStatus.Inactive;
         }
+        
+        public ObjPoolerStatus PoolerStatus { get; set; }
 
+        // ReSharper disable once UnusedMember.Global
         public virtual void Active()
         {
             gameObject.SetActive(true);
-            onAcitve?.Invoke(this);
+            PoolerStatus = ObjPoolerStatus.Active;
         }
 
-        void IObjPooler.SetEvent(Action<ObjPooler> onActive, Action<ObjPooler> onInactive)
-        {
-            this.onAcitve = onActive;
-            this.onInactive = onInactive;
-        }
+    }
 
-        public interface IObjPooler
-        {
-            void SetEvent(Action<ObjPooler> onActive, Action<ObjPooler> onInActive);
-        }
+    public interface IObjPooler
+    {
+        // ReSharper disable once UnusedMember.Global
+        // void SetEvent(Action<ObjPooler> onActive, Action<ObjPooler> onInActive);
+
+        // ReSharper disable once UnusedMember.Global
+        // ReSharper disable once UnusedMemberInSuper.Global
+        void Active();
+
+        // ReSharper disable once UnusedMemberInSuper.Global
+        void Inactive();
+
+        // ReSharper disable once UnusedMember.Global
+        // ReSharper disable once InconsistentNaming
+        GameObject gameObject { get; }
+
+        // ReSharper disable once UnusedMemberInSuper.Global
+        // ReSharper disable once UnusedMember.Global
+        ObjPoolerStatus PoolerStatus { get; set; }
+    }
+
+    public enum ObjPoolerStatus
+    {
+        DontKnow,
+        Active,
+        Inactive,
     }
 }

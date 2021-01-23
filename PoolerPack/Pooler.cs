@@ -1,124 +1,103 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace PoolerPack
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class Pooler : IPooler
     {
-        private Dictionary<int, PoolerStore> dict = new Dictionary<int, Pooler.PoolerStore>();
+        private readonly Dictionary<int, PoolerStore> _dict = new Dictionary<int, PoolerStore>();
 
-        public T GetObj<T>(T template) where T : ObjPooler
+        public T GetObj<T>(T template) where T : IObjPooler
         {
             if (template == null)
-                return null;
-            int id = template.GetInstanceID();
+                return default;
+            var id = template.gameObject.GetInstanceID();
             var poolerStore = GetPooler(id);
-            return (T)poolerStore.GetObj(template);
+            return (T) poolerStore.GetObj(template);
         }
 
-        public T GetObj<T>(T template, Transform parent) where T : ObjPooler
+        public T GetObj<T>(T template, Transform parent) where T : IObjPooler
         {
             if (template == null)
-                return null;
-            int id = template.GetInstanceID();
+                return default;
+            var id = template.gameObject.GetInstanceID();
             var poolerStore = GetPooler(id);
-            return (T)poolerStore.GetObj(template, parent);
+            return (T) poolerStore.GetObj(template, parent);
         }
 
         public void InActiveAll()
         {
-            foreach (var item in dict)
+            foreach (var item in _dict)
             {
                 item.Value.InactiveAll();
             }
         }
 
-        public PoolerStore GetPooler<T>(T template) where T : ObjPooler
+        public PoolerStore GetPooler<T>(T template) where T : IObjPooler
         {
-            var id = template.GetInstanceID();
+            var id = template.gameObject.GetInstanceID();
             return GetPooler(id);
         }
 
         private PoolerStore GetPooler(int id)
         {
-            PoolerStore pooler;
-            if (!dict.TryGetValue(id, out pooler))
+            if (!_dict.TryGetValue(id, out var pooler))
             {
                 pooler = new PoolerStore();
-                dict.Add(id, pooler);
+                _dict.Add(id, pooler);
             }
+
             return pooler;
         }
 
         public class PoolerStore
         {
-            private HashSet<ObjPooler> listInactive = new HashSet<ObjPooler>();
-            private HashSet<ObjPooler> listWorking = new HashSet<ObjPooler>();
-            private HashSet<ObjPooler> listActive = new HashSet<ObjPooler>();
+            private readonly List<IObjPooler> _listObj = new List<IObjPooler>();
 
-            public HashSet<ObjPooler> ListActive => listActive;
+            // ReSharper disable once ConvertToAutoPropertyWhenPossible
+            // ReSharper disable once UnusedMember.Global
+            public IEnumerable<IObjPooler> ListActive =>
+                _listObj.Where(obj => obj.PoolerStatus == ObjPoolerStatus.Active);
 
-            public ObjPooler GetObj(ObjPooler template, Transform parent)
+            public IObjPooler GetObj(IObjPooler template, Transform parent)
             {
                 var obj = GetObj(template);
-                obj.transform.SetParent(parent);
+                obj.gameObject.transform.SetParent(parent);
                 return obj;
             }
 
-            public ObjPooler GetObj(ObjPooler template)
+            public IObjPooler GetObj(IObjPooler template)
             {
                 if (template == null)
                 {
                     return null;
                 }
-                ObjPooler item = null;
-                foreach (var inactiveItem in listInactive)
+
+                foreach (var objPooler in _listObj)
                 {
-                    item = inactiveItem;
+                    if (objPooler.PoolerStatus == ObjPoolerStatus.Inactive)
+                    {
+                        return objPooler;
+                    }
                 }
-                if (item != null)
-                {
-                    listInactive.Remove(item);
-                    listWorking.Add(item);
-                    return item;
-                }
-                else
-                {
-                    item = Object.Instantiate(template);
-                    ((ObjPooler.IObjPooler)item).SetEvent(OnObjActive, OnObjInactive);
-                    listWorking.Add(item);
-                    return item;
-                }
+
+                var item = Object.Instantiate(template.gameObject).GetComponent<IObjPooler>();
+                item.PoolerStatus = ObjPoolerStatus.DontKnow;
+                _listObj.Add(item);
+                return item;
             }
 
             public void InactiveAll()
             {
-                var lw = new HashSet<ObjPooler>(listWorking);
-                var la = new HashSet<ObjPooler>(listActive);
-                foreach (var item in lw)
+                foreach (var objPooler in _listObj)
                 {
-                    item.Inactive();
+                    if (objPooler.PoolerStatus != ObjPoolerStatus.Inactive)
+                    {
+                        objPooler.Inactive();
+                    }
                 }
-                foreach (var item in la)
-                {
-                    item.Inactive();
-                }
-            }
-
-            private void OnObjInactive(ObjPooler obj)
-            {
-                bool removed = listWorking.Remove(obj);
-                removed = removed || listActive.Remove(obj);
-                if (removed)
-                    listInactive.Add(obj);
-            }
-
-            private void OnObjActive(ObjPooler obj)
-            {
-                bool removed = listWorking.Remove(obj);
-                removed = removed || listInactive.Remove(obj);
-                if (removed)
-                    listActive.Add(obj);
             }
         }
     }
