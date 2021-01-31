@@ -36,7 +36,7 @@ namespace SoundManager
             Init();
         }
 
-        protected void Init()
+        protected virtual void Init()
         {
             if (_initialized) return;
             if (_effectSource == null)
