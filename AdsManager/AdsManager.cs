@@ -103,7 +103,10 @@ namespace AdsManager
             };
             _bannerView.OnAdFailedToLoad += (sender, args) =>
             {
-                MobileAdsEventExecutor.ExecuteInUpdate(RequestBanner);
+                MobileAdsEventExecutor.ExecuteInUpdate(() =>
+                {
+                    MobileAdsEventExecutor.instance.StartCoroutine(IeInvokeDelay(15, RequestBanner));
+                });
             };
             _bannerView.OnAdLoaded += (sender, args) =>
             {
@@ -135,7 +138,10 @@ namespace AdsManager
             };
             _interstitialAd.OnAdFailedToLoad += (sender, args) =>
             {
-                MobileAdsEventExecutor.ExecuteInUpdate(RequestInterstitial);
+                MobileAdsEventExecutor.ExecuteInUpdate(() =>
+                {
+                    MobileAdsEventExecutor.instance.StartCoroutine(IeInvokeDelay(15, RequestInterstitial));
+                });
             };
             _interstitialAd.OnAdLeavingApplication += (sender, args) =>
             {
@@ -181,7 +187,10 @@ namespace AdsManager
             };
             _rewardedAd.OnAdFailedToLoad += (sender, args) =>
             {
-                MobileAdsEventExecutor.ExecuteInUpdate(RequestReward);
+                MobileAdsEventExecutor.ExecuteInUpdate(() =>
+                {
+                    MobileAdsEventExecutor.instance.StartCoroutine(IeInvokeDelay(15, RequestReward));
+                });
             };
             _rewardedAd.OnAdFailedToShow += (sender, args) =>
             {
