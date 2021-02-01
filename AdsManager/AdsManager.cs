@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Common;
 using UnityEngine;
@@ -157,17 +158,20 @@ namespace AdsManager
             {
                 MobileAdsEventExecutor.ExecuteInUpdate(() =>
                 {
-                    if (m_GotReward)
+                    MobileAdsEventExecutor.instance.StartCoroutine(IeInvokeDelay(0.2f, () =>
                     {
-                        m_CallBackRewardSuccess?.Invoke();
-                    }
-                    else
-                    {
-                        m_CallBackRewardCancel?.Invoke();
-                    }
+                        if (m_GotReward)
+                        {
+                            m_CallBackRewardSuccess?.Invoke();
+                        }
+                        else
+                        {
+                            m_CallBackRewardCancel?.Invoke();
+                        }
 
-                    m_CallBackRewardClose?.Invoke();
-                    RequestReward();
+                        m_CallBackRewardClose?.Invoke();
+                        RequestReward();
+                    }));
                 });
             };
             m_RewardedAd.OnAdFailedToLoad += (sender, args) =>
@@ -195,6 +199,12 @@ namespace AdsManager
                 MobileAdsEventExecutor.ExecuteInUpdate(() => { OnRewardLoaded?.Invoke(); });
             };
             m_RewardedAd.LoadAd(CreateRequest());
+        }
+
+        private IEnumerator IeInvokeDelay(float time, Action callBack)
+        {
+            yield return new WaitForSeconds(time);
+            callBack?.Invoke();
         }
 
         #endregion
