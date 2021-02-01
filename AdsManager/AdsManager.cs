@@ -29,44 +29,52 @@ namespace AdsManager
 
         public void ShowInterstitial()
         {
-            if (m_InterstitialAd.IsLoaded())
+            if (_interstitialAd.IsLoaded())
             {
-                m_InterstitialAd.Show();
+                _interstitialAd.Show();
             }
         }
 
         public void ShowBanner()
         {
-            m_BannerView?.Show();
-            m_BannerShowing = true;
+            if (_bannerShowing)
+            {
+                return;
+            }
+            _bannerView?.Show();
+            _bannerShowing = true;
         }
 
         public void HideBanner()
         {
-            m_BannerView?.Hide();
-            m_BannerShowing = false;
+            if (!_bannerShowing)
+            {
+                return;
+            }
+            _bannerView?.Hide();
+            _bannerShowing = false;
         }
 
         public bool RewardVideoReady()
         {
-            return m_RewardedAd.IsLoaded();
+            return _rewardedAd.IsLoaded();
         }
 
         public void ShowReward(Action callBackRewardOpen, Action callBackRewardFailedToOpen, Action callBackRewardClose,
             Action callBackRewardCancel, Action callBackRewardSuccess)
         {
-            if (!m_RewardedAd.IsLoaded())
+            if (!_rewardedAd.IsLoaded())
             {
                 callBackRewardFailedToOpen?.Invoke();
                 return;
             }
 
-            m_CallBackRewardOpen = callBackRewardOpen;
-            m_CallBackRewardFailedToOpen = callBackRewardFailedToOpen;
-            m_CallBackRewardClose = callBackRewardClose;
-            m_CallBackRewardCancel = callBackRewardCancel;
-            m_CallBackRewardSuccess = callBackRewardSuccess;
-            m_RewardedAd.Show();
+            _callBackRewardOpen = callBackRewardOpen;
+            _callBackRewardFailedToOpen = callBackRewardFailedToOpen;
+            _callBackRewardClose = callBackRewardClose;
+            _callBackRewardCancel = callBackRewardCancel;
+            _callBackRewardSuccess = callBackRewardSuccess;
+            _rewardedAd.Show();
         }
 
         #endregion
@@ -82,123 +90,120 @@ namespace AdsManager
 
         #region Banner
 
-        private BannerView m_BannerView;
-        private bool m_BannerShowing;
+        private BannerView _bannerView;
+        private bool _bannerShowing;
 
         private void RequestBanner()
         {
-            m_BannerView?.Destroy();
-            m_BannerView = new BannerView(bannerId, AdSize.Banner, bannerPosition);
-            m_BannerView.OnAdOpening += (sender, args) =>
+            _bannerView?.Destroy();
+            _bannerView = new BannerView(bannerId, AdSize.Banner, bannerPosition);
+            _bannerView.OnAdOpening += (sender, args) =>
             {
                 MobileAdsEventExecutor.ExecuteInUpdate(() => { OnAdsClicked?.Invoke(); });
             };
-            m_BannerView.OnAdFailedToLoad += (sender, args) =>
+            _bannerView.OnAdFailedToLoad += (sender, args) =>
             {
                 MobileAdsEventExecutor.ExecuteInUpdate(RequestBanner);
             };
-            m_BannerView.OnAdLoaded += (sender, args) =>
+            _bannerView.OnAdLoaded += (sender, args) =>
             {
                 MobileAdsEventExecutor.ExecuteInUpdate(() =>
                 {
-                    if (m_BannerShowing)
-                    {
-                        m_BannerView.Show();
-                    }
-                    else
-                    {
-                        m_BannerView.Hide();
-                    }
+                   
                 });
             };
-            m_BannerView.LoadAd(CreateRequest());
+            _bannerView.LoadAd(CreateRequest());
+            if (!_bannerShowing)
+            {
+                _bannerView.Hide();
+            }
         }
 
         #endregion
 
         #region Interstitial
 
-        private InterstitialAd m_InterstitialAd;
+        private InterstitialAd _interstitialAd;
 
         private void RequestInterstitial()
         {
-            m_InterstitialAd?.Destroy();
-            m_InterstitialAd = new InterstitialAd(interstitialId);
-            m_InterstitialAd.OnAdClosed += (sender, args) =>
+            _interstitialAd?.Destroy();
+            _interstitialAd = new InterstitialAd(interstitialId);
+            _interstitialAd.OnAdClosed += (sender, args) =>
             {
                 MobileAdsEventExecutor.ExecuteInUpdate(RequestInterstitial);
             };
-            m_InterstitialAd.OnAdFailedToLoad += (sender, args) =>
+            _interstitialAd.OnAdFailedToLoad += (sender, args) =>
             {
                 MobileAdsEventExecutor.ExecuteInUpdate(RequestInterstitial);
             };
-            m_InterstitialAd.OnAdLeavingApplication += (sender, args) =>
+            _interstitialAd.OnAdLeavingApplication += (sender, args) =>
             {
                 MobileAdsEventExecutor.ExecuteInUpdate(() => OnAdsClicked?.Invoke());
             };
-            m_InterstitialAd.LoadAd(CreateRequest());
+            _interstitialAd.LoadAd(CreateRequest());
         }
 
         #endregion
 
         #region Reward
 
-        private RewardedAd m_RewardedAd;
-        private bool m_GotReward;
-        private Action m_CallBackRewardOpen;
-        private Action m_CallBackRewardFailedToOpen;
-        private Action m_CallBackRewardClose;
-        private Action m_CallBackRewardCancel;
-        private Action m_CallBackRewardSuccess;
+        private RewardedAd _rewardedAd;
+        private bool _gotReward;
+        private Action _callBackRewardOpen;
+        private Action _callBackRewardFailedToOpen;
+        private Action _callBackRewardClose;
+        private Action _callBackRewardCancel;
+        private Action _callBackRewardSuccess;
 
         private void RequestReward()
         {
-            m_RewardedAd = new RewardedAd(rewardId);
-            m_RewardedAd.OnAdClosed += (sender, args) =>
+            _rewardedAd = new RewardedAd(rewardId);
+            _rewardedAd.OnAdClosed += (sender, args) =>
             {
                 MobileAdsEventExecutor.ExecuteInUpdate(() =>
                 {
                     MobileAdsEventExecutor.instance.StartCoroutine(IeInvokeDelay(0.2f, () =>
                     {
-                        if (m_GotReward)
+                        if (_gotReward)
                         {
-                            m_CallBackRewardSuccess?.Invoke();
+                            _callBackRewardSuccess?.Invoke();
                         }
                         else
                         {
-                            m_CallBackRewardCancel?.Invoke();
+                            _callBackRewardCancel?.Invoke();
                         }
 
-                        m_CallBackRewardClose?.Invoke();
+                        _callBackRewardClose?.Invoke();
                         RequestReward();
                     }));
                 });
             };
-            m_RewardedAd.OnAdFailedToLoad += (sender, args) =>
+            _rewardedAd.OnAdFailedToLoad += (sender, args) =>
             {
                 MobileAdsEventExecutor.ExecuteInUpdate(RequestReward);
             };
-            m_RewardedAd.OnAdFailedToShow += (sender, args) =>
+            _rewardedAd.OnAdFailedToShow += (sender, args) =>
             {
-                MobileAdsEventExecutor.ExecuteInUpdate(() => { m_CallBackRewardFailedToOpen?.Invoke(); });
+                MobileAdsEventExecutor.ExecuteInUpdate(() => { _callBackRewardFailedToOpen?.Invoke(); });
             };
-            m_RewardedAd.OnAdOpening += (sender, args) =>
+            _rewardedAd.OnAdOpening += (sender, args) =>
             {
                 MobileAdsEventExecutor.ExecuteInUpdate(() =>
                 {
-                    m_GotReward = false;
-                    m_CallBackRewardOpen?.Invoke();
+                    _gotReward = false;
+                    _callBackRewardOpen?.Invoke();
                 });
             };
-            m_RewardedAd.OnUserEarnedReward += (sender, args) =>
+            _rewardedAd.OnUserEarnedReward += (sender, args) =>
             {
-                MobileAdsEventExecutor.ExecuteInUpdate(() => { m_GotReward = true; });
+                MobileAdsEventExecutor.ExecuteInUpdate(() => { _gotReward = true; });
             };
-            m_RewardedAd.OnAdLoaded += (sender, args) =>
+            _rewardedAd.OnAdLoaded += (sender, args) =>
             {
                 MobileAdsEventExecutor.ExecuteInUpdate(() => { OnRewardLoaded?.Invoke(); });
             };
-            m_RewardedAd.LoadAd(CreateRequest());
+            _rewardedAd.LoadAd(CreateRequest());
         }
 
         private IEnumerator IeInvokeDelay(float time, Action callBack)
