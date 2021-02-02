@@ -1,25 +1,24 @@
 ﻿#pragma warning disable 0649
-using GameEvent;
 using UnityEngine;
 
 namespace ToastView
 {
     public class ToastController : MonoBehaviour
     {
-        [SerializeField] private GameManagerEvent gameManagerEvent;
+        [SerializeField] private ToastEvent toastEvent;
         [SerializeField] private ToastView toastView;
 
         private void OnEnable()
         {
-            gameManagerEvent.EventShowToast += GameManagerEventOnEventShowToast;
+            toastEvent.EventShowToast += OnEventShowToast;
         }
 
         private void OnDisable()
         {
-            gameManagerEvent.EventShowToast -= GameManagerEventOnEventShowToast;
+            toastEvent.EventShowToast -= OnEventShowToast;
         }
 
-        private void GameManagerEventOnEventShowToast(string message)
+        private void OnEventShowToast(string message)
         {
             toastView.ShowToast(message);
         }

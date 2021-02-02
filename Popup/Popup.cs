@@ -1,9 +1,10 @@
 using UnityEngine;
 
-namespace Popup
+namespace Ui.Popup
 {
     public abstract class Popup : MonoBehaviour
     {
+        [ContextMenu("Open")]
         public virtual void Open()
         {
             transform.SetAsLastSibling();
@@ -11,6 +12,7 @@ namespace Popup
             OnOpen();
         }
 
+        [ContextMenu("Close")]
         public virtual void Close()
         {
             OnClose();

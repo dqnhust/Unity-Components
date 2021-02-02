@@ -144,7 +144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2a655bb31b3483e95a4be586d330e34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameManagerEvent: {fileID: 11400000, guid: 86222963b41a840438708d481789cee0, type: 2}
+  toastEvent: {fileID: 11400000, guid: b7dc606ebce071244b13c54a5ece83aa, type: 2}
   toastView: {fileID: 636295757370077197}
 --- !u!223 &6481168885763416181
 Canvas:
@@ -164,7 +164,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
-  m_SortingLayerID: -1820349491
+  m_SortingLayerID: -1210914091
   m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!1 &9162565060134117525
