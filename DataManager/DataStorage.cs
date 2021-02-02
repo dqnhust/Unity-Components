@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 using UnityEngine;
 
-namespace Data
+namespace DataManager
 {
     public static class DataStorage
     {
