@@ -62,6 +62,7 @@ namespace Analytics
             {
                 return;
             }
+
             FirebaseAnalytics.LogEvent(eventName);
         }
 
@@ -84,12 +85,14 @@ namespace Analytics
             {
                 return;
             }
+
             var data = parameters.Select(x => new Parameter(x.paramName, x.paramValue)).ToArray();
             FirebaseAnalytics.LogEvent(eventName, data);
         }
 
         public void LogEvent(string eventName, string paramName, string paramValue) =>
             LogEvent(eventName, (paramName, paramValue));
+
         public void LogEvent(string eventName, string paramName, int paramValue) =>
             LogEvent(eventName, (paramName, paramValue));
 
@@ -114,7 +117,17 @@ namespace Analytics
             }
         }
 
-        #endregion
+        public void SetUserProperty(string keyName, string property)
+        {
+            DebugLogEvent("[SetProperty]", ($"[Property]{keyName}", property));
+            if (!EnableLog)
+            {
+                return;
+            }
 
+            FirebaseAnalytics.SetUserProperty(keyName, property);
+        }
+
+        #endregion
     }
 }

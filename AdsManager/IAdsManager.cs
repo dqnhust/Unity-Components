@@ -11,6 +11,7 @@ namespace AdsManager
         void ShowBanner();
         void HideBanner();
         bool RewardVideoReady();
+        bool InterstitialReady();
         void ShowReward(Action callBackRewardOpen, Action callBackRewardFailedToOpen, Action callBackRewardClose, Action callBackRewardCancel, Action callBackRewardSuccess);
     }
 }

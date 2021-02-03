@@ -27,6 +27,12 @@ namespace AdsManager
             RequestReward();
         }
 
+
+        public bool InterstitialReady()
+        {
+            return _interstitialAd != null && _interstitialAd.IsLoaded();
+        }
+
         public void ShowInterstitial()
         {
             if (_interstitialAd.IsLoaded())
@@ -41,6 +47,7 @@ namespace AdsManager
             {
                 return;
             }
+
             _bannerView?.Show();
             _bannerShowing = true;
         }
@@ -51,6 +58,7 @@ namespace AdsManager
             {
                 return;
             }
+
             _bannerView?.Hide();
             _bannerShowing = false;
         }
@@ -108,13 +116,7 @@ namespace AdsManager
                     MobileAdsEventExecutor.instance.StartCoroutine(IeInvokeDelay(15, RequestBanner));
                 });
             };
-            _bannerView.OnAdLoaded += (sender, args) =>
-            {
-                MobileAdsEventExecutor.ExecuteInUpdate(() =>
-                {
-                   
-                });
-            };
+            _bannerView.OnAdLoaded += (sender, args) => { MobileAdsEventExecutor.ExecuteInUpdate(() => { }); };
             _bannerView.LoadAd(CreateRequest());
             if (!_bannerShowing)
             {
