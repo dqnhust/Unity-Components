@@ -27,7 +27,8 @@ namespace Ui.Popup
                 }
             }
 
-            throw new UnityException("Cannot Find Popup" + (typeof(T).Name));
+            Debug.LogError("Cannot Find Popup" + (typeof(T).Name));
+            return null;
         }
 
         public Popup GetPopup(GameObject template)
@@ -45,7 +46,22 @@ namespace Ui.Popup
                 }
             }
 
-            throw new UnityException($"Cannot Find Popup Have Prefab : {template.name}");
+            return GeneratePopup(template.GetComponent<Popup>());
+            //throw new UnityException($"Cannot Find Popup Have Prefab : {template.name}");
+        }
+
+        private Popup GeneratePopup(Popup popup)
+        {
+            if (popup == null)
+            {
+                return null;
+            }
+            var result = Instantiate(popup, transform);
+            result.gameObject.name = popup.gameObject.name;
+            result.transform.localScale = Vector3.one;
+            result.Init();
+            result.Close();
+            return result;
         }
 
         bool _init;
