@@ -9,6 +9,7 @@ namespace AdsManager
     [CreateAssetMenu(menuName = "GameData/Create AdsManager", fileName = "AdsManager", order = 0)]
     public class AdsManager : ScriptableObject, IAdsManager
     {
+        [SerializeField] private bool enableAds = true;
         [SerializeField] private string bannerId;
         [SerializeField] private string interstitialId;
         [SerializeField] private string rewardId;
@@ -21,6 +22,10 @@ namespace AdsManager
 
         public void Init()
         {
+            if (!enableAds)
+            {
+                return;
+            }
             MobileAds.Initialize(initStatus => { Debug.Log("Mobile Ads Initialized" + initStatus); });
             RequestBanner();
             RequestInterstitial();
@@ -91,7 +96,7 @@ namespace AdsManager
 
         private AdRequest CreateRequest()
         {
-            return new AdRequest.Builder().Build();
+            return new AdRequest.Builder().AddTestDevice("F3538E81D8FD7D1759F0B533784C8887").Build();
         }
 
         #endregion

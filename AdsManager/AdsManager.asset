@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98c6a85c554b9fc4dbdfae6a0e970576, type: 3}
   m_Name: AdsManager
   m_EditorClassIdentifier: 
+  enableAds: 1
   bannerId: ca-app-pub-6771081243960686/1883464090
   interstitialId: ca-app-pub-6771081243960686/3381853371
   rewardId: ca-app-pub-6771081243960686/5161838908
