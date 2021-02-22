@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace CircleController
@@ -7,6 +8,8 @@ namespace CircleController
         [SerializeField] private GameObject view;
         [SerializeField] private Transform innerView;
         [SerializeField] private Camera cameraView;
+
+        public event Action<Vector2> OnChanged;
 
         public Vector2 Direction { get; private set; } = Vector2.zero;
         private float Radius => 0.5f * GetComponent<RectTransform>().rect.size.x * transform.localScale.x;
@@ -28,6 +31,8 @@ namespace CircleController
 
         private Vector3 _pressMousePosition;
 
+        private bool Showing => view.activeInHierarchy;
+
         private void Update()
         {
             if (Input.GetMouseButtonDown(0))
@@ -46,9 +51,15 @@ namespace CircleController
 
                 innerView.localPosition = delta;
                 Direction = delta;
+                OnChanged?.Invoke(Direction);
             }
             else
             {
+                if (Showing)
+                {
+                    OnChanged?.Invoke(Vector2.zero);
+                }
+
                 Hide();
             }
         }
