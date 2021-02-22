@@ -109,7 +109,7 @@ namespace AdsManager
         private void RequestBanner()
         {
             _bannerView?.Destroy();
-            _bannerView = new BannerView(bannerId, AdSize.Banner, bannerPosition);
+            _bannerView = new BannerView(bannerId, AdSize.SmartBanner, bannerPosition);
             _bannerView.OnAdOpening += (sender, args) =>
             {
                 MobileAdsEventExecutor.ExecuteInUpdate(() => { OnAdsClicked?.Invoke(); });
