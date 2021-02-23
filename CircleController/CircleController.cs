@@ -47,8 +47,8 @@ namespace DqnAsset.CircleController
                 }
 
                 innerView.localPosition = delta;
-                eventObject.Direction = delta;
-                eventObject.InvokeOnChanged(delta);
+                eventObject.Direction = delta.normalized;
+                eventObject.InvokeOnChanged(eventObject.Direction);
             }
             else
             {
