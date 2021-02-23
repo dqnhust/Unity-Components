@@ -1,17 +1,14 @@
-using System;
 using UnityEngine;
 
-namespace CircleController
+namespace DqnAsset.CircleController
 {
-    public class CircleController : MonoBehaviour, ICircleController
+    public class CircleController : MonoBehaviour
     {
         [SerializeField] private GameObject view;
         [SerializeField] private Transform innerView;
         [SerializeField] private Camera cameraView;
+        [SerializeField] private EventObject eventObject;
 
-        public event Action<Vector2> OnChanged;
-
-        public Vector2 Direction { get; private set; } = Vector2.zero;
         private float Radius => 0.5f * GetComponent<RectTransform>().rect.size.x * transform.localScale.x;
 
         private void OnDisable()
@@ -50,14 +47,14 @@ namespace CircleController
                 }
 
                 innerView.localPosition = delta;
-                Direction = delta;
-                OnChanged?.Invoke(Direction);
+                eventObject.Direction = delta;
+                eventObject.InvokeOnChanged(delta);
             }
             else
             {
                 if (Showing)
                 {
-                    OnChanged?.Invoke(Vector2.zero);
+                    eventObject.InvokeOnReleased();
                 }
 
                 Hide();
