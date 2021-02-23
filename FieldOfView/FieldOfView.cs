@@ -22,6 +22,11 @@ namespace FieldOfView
 
         public void Show(Data data)
         {
+            data.origin = transform.InverseTransformPoint(data.origin);
+            for (int i = 0; i < data.targets.Count; i++)
+            {
+                data.targets[i] = transform.InverseTransformPoint(data.targets[i]);
+            }
             Init();
 
             _vertices.Clear();

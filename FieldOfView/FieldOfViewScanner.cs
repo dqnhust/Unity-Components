@@ -97,7 +97,7 @@ namespace FieldOfView
             var result = Physics.Linecast(start, end, out var hitInfo, obstacleLayer);
             if (result)
             {
-                point = transform.InverseTransformPoint(hitInfo.point);
+                point = hitInfo.point;
             }
 
             return result;

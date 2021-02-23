@@ -113,5 +113,5 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
-  maxArcPartLength: 1
+  maxArcPartLength: 0.05
   interpolateCount: 10
