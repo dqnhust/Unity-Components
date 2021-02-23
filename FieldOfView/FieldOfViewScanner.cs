@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DqnAsset.FieldOfView;
 using UnityEngine;
 
 namespace FieldOfView
@@ -59,7 +60,7 @@ namespace FieldOfView
                 return origin + Quaternion.AngleAxis(angleFromDirection, rotateAxis) * direction;
             }
 
-            var result = new Data {origin = origin, targets = new List<Vector3>()};
+            var result = new Data {origin = origin, targets = new List<Vector3>(), maxDistance = radius};
             var arcLength = 2 * Mathf.PI * radius * totalAngle / 360f;
             var partCount = Mathf.RoundToInt(arcLength / maxArcPartLength);
 

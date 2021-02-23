@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
+using FieldOfView;
 using UnityEngine;
 
-namespace FieldOfView
+namespace DqnAsset.FieldOfView
 {
     public interface IFieldOfView
     {
@@ -27,6 +27,7 @@ namespace FieldOfView
             {
                 data.targets[i] = transform.InverseTransformPoint(data.targets[i]);
             }
+
             Init();
 
             _vertices.Clear();
@@ -35,10 +36,14 @@ namespace FieldOfView
             var verticesCount = _vertices.Count;
 
             _uvs.Clear();
-            var defaultUv = Vector2.zero;
-            for (var i = 0; i < verticesCount; i++)
+            _uvs.Add(Vector2.zero);
+            // var defaultUv = Vector2.zero;
+            foreach (var position in data.targets)
             {
-                _uvs.Add(defaultUv);
+                var distanceWithOrigin = Vector3.Distance(data.origin, position);
+                var percent = distanceWithOrigin / data.maxDistance;
+                percent = Mathf.Clamp01(percent);
+                _uvs.Add(new Vector2(0, percent));
             }
 
             _triangles.Clear();

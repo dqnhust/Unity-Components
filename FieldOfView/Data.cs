@@ -9,5 +9,6 @@ namespace FieldOfView
     {
         public Vector3 origin;
         public List<Vector3> targets;
+        public float maxDistance;
     }
 }
